@@ -1,0 +1,72 @@
+```{r}
+colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+
+```
+
+```{r}
+for (i in colnames(T_BIAŁYSTOK)[2:13])
+{
+  print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+geom_histogram(bins = 8) + labs(x="Temperatura", y="Liczba"))
+}
+```
+
+```{r}
+for (i in colnames(T_BIAŁYSTOK)[2:13])
+{
+  print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i]))+geom_line() + labs(title=i,x="Rok", y="Temperatura"))
+}
+```
+
+```{r}
+# DO POPRAWY
+
+tabela <- summary(T_BIAŁYSTOK[,2:13])
+dane <- c()
+i <- 1
+for (x in colnames(T_BIAŁYSTOK)[2:13])
+{
+  append(dane, tabela[i:i+5])
+  i <- i+5
+}
+koncowa_tabela<-data.frame(tabela, dane)
+
+
+```
+
+
+```{r}
+boxplot(T_BIAŁYSTOK[,2:13], border="blue", col="orange", main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
+
+```
+```{r}
+#PORY ROKU
+wiosna <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,4:6]))
+lato <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,7:9]))
+jesien <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,10:12]))
+zima <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,c(13,2,3)]))
+wegetacja <-  data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,5:11]))
+
+dane <- list(wiosna,lato,jesien,zima,wegetacja)
+names(dane) <- c("wiosna","lato","jesien","zima","wegetacja")
+
+nazwij <- function(data){
+  colnames(data)<-c("Rok", "Temp")
+}
+lapply(dane, nazwij)
+
+histogram <-function(data){
+  ggplot(data, aes(data[,2]))+geom_histogram(bins = 8)
+  
+}
+lapply(dane, histogram)
+
+liniowy <- function(data){
+  ggplot(data, aes(data[,1],data[,2]))+geom_line() + labs(x="Rok", y="Temperatura")
+}
+lapply(dane, liniowy)
+
+pory_roku <- merge(wiosna, lato, by="Rok")
+
+
+```
+
