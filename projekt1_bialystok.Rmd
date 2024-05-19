@@ -86,3 +86,19 @@ colnames(pory_roku) <- c("Rok","wiosna","lato","jesien","zima","wegetacja")
 boxplot(pory_roku[2:5], border="blue", col="orange", main="Rozkład średnich temperatur", xlab="pory roku", ylab="tmp[st.C]")
 ```
 
+```{r}
+for (i in colnames(pory_roku[,2:5]))
+{
+  srednia <- mean(pory_roku[,i])
+  mediana <- median(pory_roku[,i])
+  sd <- sd(pory_roku[,i])
+  min <- min(pory_roku[,i])
+  max <- max(pory_roku[,i])
+  iqr <- IQR(pory_roku[,i])
+  temp_tabela <- data.frame(rownames=c(srednia, mediana,sd, min, max, iqr))
+  tabela_pory_roku<-cbind.data.frame(tabela_miesiace, temp_tabela)
+}
+colnames(tabela_pory_roku)=c(" ", "wiosna","lato","jesien","zima","wegetacja")
+write.xlsx(tabela_pory_roku, 'Tabela_pory_roku.xlsx') #TU DAJE OD RAZU DO WORKING DIRECTORY
+```
+
