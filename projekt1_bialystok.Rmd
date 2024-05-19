@@ -4,6 +4,7 @@ colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VII
 ```
 
 ```{r}
+library(ggplot2)
 for (i in colnames(T_BIAŁYSTOK)[2:13])
 {
   print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+geom_histogram(bins = 8) + labs(x="Temperatura", y="Liczba"))
@@ -38,40 +39,50 @@ write.xlsx(tabela_miesiace, 'Tabela_miesiace.xlsx') #TU DAJE OD RAZU DO WORKING 
 
 ```
 
-
 ```{r}
 boxplot(T_BIAŁYSTOK[,2:13], border="blue", col="orange", main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
 
 ```
+
 ```{r}
 #PORY ROKU
-wiosna <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,4:6]))
-lato <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,7:9]))
-jesien <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,10:12]))
-zima <- data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,c(13,2,3)]))
-wegetacja <-  data.frame(T_BIAŁYSTOK[,1], rowMeans(T_BIAŁYSTOK[,5:11]))
+wiosna <- data.frame(T_BIAŁYSTOK[,1], round(rowMeans(T_BIAŁYSTOK[,4:6]),3))
+lato <- data.frame(T_BIAŁYSTOK[,1], round(rowMeans(T_BIAŁYSTOK[,7:9]),3))
+jesien <- data.frame(T_BIAŁYSTOK[,1], round(rowMeans(T_BIAŁYSTOK[,10:12]),3))
+zima <- data.frame(T_BIAŁYSTOK[,1], round(rowMeans(T_BIAŁYSTOK[,c(13,2,3)]),3))
+wegetacja <-  data.frame(T_BIAŁYSTOK[,1], round(rowMeans(T_BIAŁYSTOK[,5:11]),3))
 
+#lista
 dane <- list(wiosna,lato,jesien,zima,wegetacja)
 names(dane) <- c("wiosna","lato","jesien","zima","wegetacja")
 
-nazwij <- function(data){
-  colnames(data)<-c("Rok", "Temp")
+#zmiana nazw
+for (i in 1:5){
+  colnames(dane[[i]])<-c("Rok", "Temp")
 }
-lapply(dane, nazwij)
+dane
 
+#histogram
 histogram <-function(data){
   ggplot(data, aes(data[,2]))+geom_histogram(bins = 8)
   
 }
 lapply(dane, histogram)
 
+#wykres liniowy
 liniowy <- function(data){
   ggplot(data, aes(data[,1],data[,2]))+geom_line() + labs(x="Rok", y="Temperatura")
 }
 lapply(dane, liniowy)
 
-pory_roku <- merge(wiosna, lato, by="Rok")
+#złożenie średnich w jeden df
+pory_roku <- data.frame(wiosna)
+for (pora in dane[2:5]) {
+  pory_roku <- cbind(pory_roku, pora[,2])
+}
+colnames(pory_roku) <- c("Rok","wiosna","lato","jesien","zima","wegetacja")
 
-
+#boxplot
+boxplot(pory_roku[2:5], border="blue", col="orange", main="Rozkład średnich temperatur", xlab="pory roku", ylab="tmp[st.C]")
 ```
 
