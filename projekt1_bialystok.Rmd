@@ -18,17 +18,22 @@ for (i in colnames(T_BIAŁYSTOK)[2:13])
 ```
 
 ```{r}
-# DO POPRAWY
+# STATYSTYKI OPISOWE
+tabela_miesiace <- data.frame(rownames=c("Średnia", "Mediana", "Odchylenie Standardowe", "Minimum", "Maximum", "Rozstęp miedzykwartylowy"))
 
-tabela <- summary(T_BIAŁYSTOK[,2:13])
-dane <- c()
-i <- 1
-for (x in colnames(T_BIAŁYSTOK)[2:13])
+for (i in colnames(T_BIAŁYSTOK[,2:13]))
 {
-  append(dane, tabela[i:i+5])
-  i <- i+5
+  srednia <- mean(T_BIAŁYSTOK[,i])
+  mediana <- median(T_BIAŁYSTOK[,i])
+  sd <- sd(T_BIAŁYSTOK[,i])
+  min <- min(T_BIAŁYSTOK[,i])
+  max <- max(T_BIAŁYSTOK[,i])
+  iqr <- IQR(T_BIAŁYSTOK[,i])
+  temp_tabela <- data.frame(rownames=c(srednia, mediana,sd, min, max, iqr))
+  tabela_miesiace<-cbind.data.frame(tabela_miesiace, temp_tabela)
 }
-koncowa_tabela<-data.frame(tabela, dane)
+colnames(tabela_miesiace)=c(" ", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+write.xlsx(tabela_miesiace, 'Tabela_miesiace.xlsx') #TU DAJE OD RAZU DO WORKING DIRECTORY
 
 
 ```
