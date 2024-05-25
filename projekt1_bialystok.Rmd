@@ -1,22 +1,49 @@
 ```{r}
+library(ggplot2)
 colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
 
 ```
 
+
 ```{r}
-library(ggplot2)
+histogram_theme <- theme(axis.title = element_text(family ="sans", size = 20  ),
+                         panel.background = element_rect(fill ="gray93"))
+
+
 for (i in colnames(T_BIAŁYSTOK)[2:13])
 {
-  print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+geom_histogram(bins = 8) + labs(x="Temperatura", y="Liczba"))
+  print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+geom_histogram(fill="gray",color = "black",bins = 8) + labs(x="Temperatura", y="Liczba")
+        +histogram_theme)
 }
 ```
 
 ```{r}
+
+liniowy_theme <- theme(
+  plot.background = element_rect(fill = "#FAF8FF"),
+  panel.background = element_rect(fill="gray93"),
+  panel.grid = element_line(linewidth = 0.9, color="white"),
+  panel.grid.minor = element_line(linewidth = 0.9),
+  panel.border = element_rect(linewidth  = 2, fill = NA),
+  axis.title = element_text(size = 25, family = "sans"),
+  plot.title = element_text(size=30, hjust = 0),
+  legend.position  = "none"
+  )
+
+#ten kod trzeba wkleić do konsoli, bo z notebooka nie chce generować w oknie
 for (i in colnames(T_BIAŁYSTOK)[2:13])
 {
-  print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i]))+geom_line() + labs(title=i,x="Rok", y="Temperatura"))
+  #dev.new() #to jest do tworzenia nowego okna dla każdego wykresu
+  print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i]))+ 
+          geom_line(color="#B5B5B5",linewidth=0.9) + 
+          labs(title=i,x="Rok", y="Temperatura")+ 
+          geom_point(aes(colour = T_BIAŁYSTOK[,i], alpha = 0.6), size=3, shape=19) +
+          scale_color_gradient(low = "blue", high ="red",limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) + 
+          liniowy_theme)
 }
+
 ```
+
 
 ```{r}
 # STATYSTYKI OPISOWE
@@ -71,9 +98,15 @@ lapply(dane, histogram)
 
 #wykres liniowy
 liniowy <- function(data){
-  ggplot(data, aes(data[,1],data[,2]))+geom_line() + labs(x="Rok", y="Temperatura")
+          print(ggplot(data, aes(data[,1],data[,2]))+
+          geom_line(color="#B5B5B5",linewidth=0.9) + 
+          labs(title=i,x="Rok", y="Temperatura")+ 
+          geom_point(aes(colour = T_BIAŁYSTOK[,i], alpha = 0.6), size=3, shape=19) +
+          scale_color_gradient(low = "blue", high ="red",limits=c(min(data[,2]),max(data[,2]))) + 
+          liniowy_theme)
 }
-lapply(dane, liniowy)
+
+sapply(dane, liniowy)
 
 #złożenie średnich w jeden df
 pory_roku <- data.frame(wiosna)
@@ -85,6 +118,7 @@ colnames(pory_roku) <- c("Rok","wiosna","lato","jesien","zima","wegetacja")
 #boxplot
 boxplot(pory_roku[2:5], border="blue", col="orange", main="Rozkład średnich temperatur", xlab="pory roku", ylab="tmp[st.C]")
 ```
+
 
 ```{r}
 for (i in colnames(pory_roku[,2:5]))
