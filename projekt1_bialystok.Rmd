@@ -21,9 +21,12 @@ for (i in colnames(T_BIAŁYSTOK)[2:13])
 
 liniowy_theme <- theme(
   plot.background = element_rect(fill = "#FAF8FF"),
-  panel.background = element_rect(fill="gray93"),
-  panel.grid = element_line(linewidth = 0.9, color="white"),
-  panel.grid.minor = element_line(linewidth = 0.9),
+  panel.background = element_rect(fill="white"),
+  panel.grid = element_line(linewidth = 0.9, color="gray93"),
+  panel.grid.major.y = element_line(linewidth = 1, linetype = "dashed"),
+  panel.grid.minor.y = element_line(linewidth = 0.4, linetype = "dashed"),
+  panel.grid.major.x = element_blank(),
+  panel.grid.minor.x = element_blank(),
   panel.border = element_rect(linewidth  = 2, fill = NA),
   axis.title = element_text(size = 25, family = "sans"),
   plot.title = element_text(size=30, hjust = 0),
@@ -37,11 +40,12 @@ for (i in colnames(T_BIAŁYSTOK)[2:13])
   print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i]))+ 
           geom_line(color="#B5B5B5",linewidth=0.9) + 
           labs(title=i,x="Rok", y="Temperatura")+ 
-          geom_point(aes(colour = T_BIAŁYSTOK[,i], alpha = 0.6), size=3, shape=19) +
-          scale_color_gradient(low = "blue", high ="red",limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) + 
+          geom_point(aes(fill = T_BIAŁYSTOK[,i]), size=5, pch=21) +
+          scale_fill_gradient2(low="deepskyblue",mid = ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) + 
+          scale_y_continuous(labels = ~ paste0(.x, " °C"))+
           liniowy_theme)
 }
-
+#ten wykres może wyglądać na podglądzie trochę ciasno, ale jak się go otworzy w pełnym oknie to jest dobrze
 ```
 
 
