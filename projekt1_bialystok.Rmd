@@ -6,16 +6,39 @@ colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VII
 
 
 ```{r}
-histogram_theme <- theme(axis.title = element_text(family ="sans", size = 20  ),
-                         panel.background = element_rect(fill ="gray93"))
+histogram_theme <- theme(
+  axis.title = element_text(family ="sans", size = 20 ),
+  plot.background = element_rect(fill = "#FAF8FF"),
+  panel.background = element_rect(fill="white"),
+  panel.grid = element_line(linewidth = 0.9, color="gray93"),
+  panel.grid.major.y = element_line(linewidth = 1),
+  panel.grid.major.x = element_line(linewidth = 0.4, linetype = "dashed"),
+  panel.grid.minor.y = element_line(linewidth = 0.4),,
+  panel.grid.minor.x = element_blank(),
+  legend.position = "none"
+  )
 
 
 for (i in colnames(T_BIAŁYSTOK)[2:13])
 {
-  print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+geom_histogram(fill="gray",color = "black",bins = 8) + labs(x="Temperatura", y="Liczba")
-        +histogram_theme)
+  min1= (min(T_BIAŁYSTOK[,i])-min(T_BIAŁYSTOK[2:13]))/(max(T_BIAŁYSTOK[2:13]) - min(T_BIAŁYSTOK[2:13]))
+  max1= (max(T_BIAŁYSTOK[,i])-min(T_BIAŁYSTOK[2:13]))/(max(T_BIAŁYSTOK[2:13]) - min(T_BIAŁYSTOK[2:13]))
+  print(i)
+  print(229+229*min1)
+  print(360*max1)
+  #nie mam pojecia jak to zadziałał
+
+  print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+
+          geom_histogram(aes(fill=factor(T_BIAŁYSTOK[,i]), color = factor(T_BIAŁYSTOK[,i])),bins = 8) +
+          scale_fill_discrete(h=c(360*max1,230+230*min1), c=67 , l=64) +
+          scale_color_discrete(h=c(360*max1,230+230*min1), c=67 , l=64)+
+          labs(title = i, x="Temperatura", y="Liczba wystąpień") +
+          scale_x_continuous(labels = ~ paste0(.x, " °C"))+
+          histogram_theme
+        )
 }
 ```
+
 
 ```{r}
 
@@ -71,7 +94,10 @@ write.xlsx(tabela_miesiace, 'Tabela_miesiace.xlsx') #TU DAJE OD RAZU DO WORKING 
 ```
 
 ```{r}
-boxplot(T_BIAŁYSTOK[,2:13], border="blue", col="orange", main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
+boxplot(T_BIAŁYSTOK[,2:13], 
+        border=colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        col= colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
 
 ```
 
@@ -89,14 +115,22 @@ names(dane) <- c("wiosna","lato","jesien","zima","wegetacja")
 
 #zmiana nazw
 for (i in 1:5){
-  colnames(dane[[i]])<-c("Rok", "Temp")
+  colnames(dane[[i]])<-c(names(dane)[i], "Temp")
 }
 dane
 
 #histogram
 histogram <-function(data){
-  ggplot(data, aes(data[,2]))+geom_histogram(bins = 8)
+  min1= (min(data[,2])-min(T_BIAŁYSTOK[2:13]))/(max(T_BIAŁYSTOK[2:13]) - min(T_BIAŁYSTOK[2:13]))
+  max1= (max(data[,2])-min(T_BIAŁYSTOK[2:13]))/(max(T_BIAŁYSTOK[2:13]) - min(T_BIAŁYSTOK[2:13]))
   
+  ggplot(data, aes(data[,2]))+
+  geom_histogram(aes(fill=factor(data[,2]), color = factor(data[,2])),bins = 8) +
+          scale_fill_discrete(h=c(360*max1,230+230*min1), c=67 , l=64) +
+          scale_color_discrete(h=c(360*max1,230+230*min1), c=67 , l=64)+
+          labs(title =colnames(data)[1] , x="Temperatura", y="Liczba wystąpień") +
+          scale_x_continuous(labels = ~ paste0(.x, " °C"))+
+          histogram_theme
 }
 lapply(dane, histogram)
 
@@ -104,13 +138,14 @@ lapply(dane, histogram)
 liniowy <- function(data){
           print(ggplot(data, aes(data[,1],data[,2]))+
           geom_line(color="#B5B5B5",linewidth=0.9) + 
-          labs(title=i,x="Rok", y="Temperatura")+ 
-          geom_point(aes(colour = T_BIAŁYSTOK[,i], alpha = 0.6), size=3, shape=19) +
-          scale_color_gradient(low = "blue", high ="red",limits=c(min(data[,2]),max(data[,2]))) + 
+          labs(title=colnames(data)[1],x="Rok", y="Temperatura")+ 
+          geom_point(aes(fill = data[,2]), size=5, pch=21) +
+          scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) + 
+          scale_y_continuous(labels = ~ paste0(.x, " °C"))+
           liniowy_theme)
 }
 
-sapply(dane, liniowy)
+lapply(dane, liniowy)
 
 #złożenie średnich w jeden df
 pory_roku <- data.frame(wiosna)
