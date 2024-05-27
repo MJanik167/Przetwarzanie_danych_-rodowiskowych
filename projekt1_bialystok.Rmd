@@ -154,7 +154,7 @@ for (pora in dane[2:5]) {
 }
 colnames(pory_roku) <- c("Rok","wiosna","lato","jesien","zima","wegetacja")
 
-#boxplot
+#boxplot 
 boxplot(pory_roku[2:5], border="blue", col="orange", main="Rozkład średnich temperatur", xlab="pory roku", ylab="tmp[st.C]")
 ```
 
