@@ -218,9 +218,18 @@ tabela_srednie_dekadowe[,1]<-names(dekady)
 
 ```{r}
 #wykresy średnich dekadowych
+theme_scatter<-liniowy_theme + theme(
+  panel.grid.major.y = element_line(linetype = "solid"),
+  panel.grid.major.x = element_line(linetype = "solid"),
+  panel.grid.minor.y = element_blank()
+)
+
 for (i in colnames(tabela_srednie_dekadowe[,2:18]))
 {
-  print(ggplot(tabela_srednie_dekadowe, aes(Dekada, tabela_srednie_dekadowe[,i]))+geom_point()+labs(y="Temperatura", title=i))
+  print(ggplot(tabela_srednie_dekadowe, aes(Dekada, tabela_srednie_dekadowe[,i]))+
+          geom_point(aes(fill = tabela_srednie_dekadowe[,i]), size=6, pch=21) +
+          scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+
+          labs(y="Temperatura", title=i)+
+          theme_scatter)
 }
-
 ```
