@@ -256,5 +256,3 @@ for (i in colnames(tabela_srednie_dekadowe[,2:18]))
           labs(y="Temperatura", title=i)+
           theme_scatter)
 }
-
-```
