@@ -18,30 +18,34 @@ histogram_theme <- theme(
   panel.grid = element_line(linewidth = 0.9, color="gray93"),
   panel.grid.major.y = element_line(linewidth = 1),
   panel.grid.major.x = element_line(linewidth = 0.4, linetype = "dashed"),
-  panel.grid.minor.y = element_line(linewidth = 0.4),,
+  panel.grid.minor.y = element_line(linewidth = 0.4),
   panel.grid.minor.x = element_blank(),
   legend.position = "none"
-  )
+)
 
-
+#Używamy pętli for, aby nie musieć pisać kodu dla każdego miesiąca
 for (i in colnames(T_BIAŁYSTOK)[2:13])
 {
+  #otwarcie nowego okna dla każdego wykresu
+  #dev.new()
+  
+  #chcemy wygenerować gradient dla każdego wykresu, potrzebujemy do tego przedziału temperatur, aby dopasować do niego przedział kolorów
   min1= (min(T_BIAŁYSTOK[,i])-min(T_BIAŁYSTOK[2:13]))/(max(T_BIAŁYSTOK[2:13]) - min(T_BIAŁYSTOK[2:13]))
   max1= (max(T_BIAŁYSTOK[,i])-min(T_BIAŁYSTOK[2:13]))/(max(T_BIAŁYSTOK[2:13]) - min(T_BIAŁYSTOK[2:13]))
-  print(i)
-  print(229+229*min1)
-  print(360*max1)
-  #nie mam pojecia jak to zadziałał
-
+  
+  
   print(ggplot(T_BIAŁYSTOK, aes(T_BIAŁYSTOK[,i]))+
           geom_histogram(aes(fill=factor(T_BIAŁYSTOK[,i]), color = factor(T_BIAŁYSTOK[,i])),bins = 8) +
-          scale_fill_discrete(h=c(360*max1,230+230*min1), c=67 , l=64) +
-          scale_color_discrete(h=c(360*max1,230+230*min1), c=67 , l=64)+
+          #dodajemy gradient
+          scale_fill_discrete(h=c(400*max1,230+180*min1), c=67 , l=64) +
+          scale_color_discrete(h=c(400*max1,230+180*min1), c=67 , l=64)+
           labs(title = i, x="Temperatura", y="Liczba wystąpień") +
+          #dodajemy notację dla temperatury
           scale_x_continuous(labels = ~ paste0(.x, " °C"))+
           histogram_theme
         )
 }
+
 ```
 
 
@@ -61,19 +65,25 @@ liniowy_theme <- theme(
   legend.position  = "none"
   )
 
-#ten kod trzeba wkleić do konsoli, bo z notebooka nie chce generować w oknie
+#ponownie używamy pętli for
 for (i in colnames(T_BIAŁYSTOK)[2:13])
 {
-  #dev.new() #to jest do tworzenia nowego okna dla każdego wykresu
-  print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i]))+ 
-          geom_line(color="#B5B5B5",linewidth=0.9) + 
-          labs(title=i,x="Rok", y="Temperatura")+ 
+  #dev.new()
+  print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i],color = T_BIAŁYSTOK[,i]))+ 
+          #dodanie wykresu liniowego 
+          geom_line(linewidth=0.9) + 
+          #dodajemy punkty do wykresu liniowego, aby lepiej zobrazować poszczególne dane (oraz ze względów estetycznych)
           geom_point(aes(fill = T_BIAŁYSTOK[,i]), size=5, pch=21) +
-          scale_fill_gradient2(low="deepskyblue",mid = ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) + 
+          #dodanie gradientu
+          scale_fill_gradient2(low="deepskyblue",mid = ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) +
+          scale_color_gradient2(low="deepskyblue",mid ="#D5D5D5",high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+ 
+          #dodanie notacji dla temperatury
           scale_y_continuous(labels = ~ paste0(.x, " °C"))+
+          #tytuły osi
+          labs(title=i,x="Rok", y="Temperatura")+ 
+          #dodanie przygotowanego wcześniej theme'a
           liniowy_theme)
 }
-#ten wykres może wyglądać na podglądzie trochę ciasno, ale jak się go otworzy w pełnym oknie to jest dobrze
 ```
 
 
@@ -99,11 +109,16 @@ write.xlsx(tabela_miesiace, 'Tabela_miesiace.xlsx') #TU DAJE OD RAZU DO WORKING 
 ```
 
 ```{r}
+boxplot(T_BIAŁYSTOK[,2:13])
+grid(nx=0,ny=6,lty = "solid",col = "gray93")
 boxplot(T_BIAŁYSTOK[,2:13], 
-        border=colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        #border=colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
         col= colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
-        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
-
+        #col = "gray93",
+        border = "black",
+        add=TRUE,
+        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]"
+        )
 ```
 
 ```{r}
@@ -122,7 +137,6 @@ names(dane) <- c("wiosna","lato","jesien","zima","wegetacja")
 for (i in 1:5){
   colnames(dane[[i]])<-c(names(dane)[i], "Temp")
 }
-dane
 
 #histogram
 histogram <-function(data){
@@ -131,8 +145,8 @@ histogram <-function(data){
   
   ggplot(data, aes(data[,2]))+
   geom_histogram(aes(fill=factor(data[,2]), color = factor(data[,2])),bins = 8) +
-          scale_fill_discrete(h=c(360*max1,230+230*min1), c=67 , l=64) +
-          scale_color_discrete(h=c(360*max1,230+230*min1), c=67 , l=64)+
+          scale_fill_discrete(h=c(400*max1,230+180*min1), c=67 , l=64) +
+          scale_color_discrete(h=c(400*max1,230+180*min1), c=67 , l=64)+
           labs(title =colnames(data)[1] , x="Temperatura", y="Liczba wystąpień") +
           scale_x_continuous(labels = ~ paste0(.x, " °C"))+
           histogram_theme
@@ -141,11 +155,12 @@ lapply(dane, histogram)
 
 #wykres liniowy
 liniowy <- function(data){
-          print(ggplot(data, aes(data[,1],data[,2]))+
-          geom_line(color="#B5B5B5",linewidth=0.9) + 
+          print(ggplot(data, aes(data[,1],data[,2], color = data[,2]))+
+          geom_line(linewidth=0.9) + 
           labs(title=colnames(data)[1],x="Rok", y="Temperatura")+ 
           geom_point(aes(fill = data[,2]), size=5, pch=21) +
           scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) + 
+          scale_color_gradient2(low="deepskyblue",mid ="#C5C5C5" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+
           scale_y_continuous(labels = ~ paste0(.x, " °C"))+
           liniowy_theme)
 }
@@ -159,8 +174,17 @@ for (pora in dane[2:5]) {
 }
 colnames(pory_roku) <- c("Rok","wiosna","lato","jesien","zima","wegetacja")
 
-#boxplot 
-boxplot(pory_roku[2:5], border="blue", col="orange", main="Rozkład średnich temperatur", xlab="pory roku", ylab="tmp[st.C]")
+#boxplot
+boxplot(pory_roku[2:6])
+grid(nx=0,ny=5,lty = "solid",col = "gray93")
+boxplot(pory_roku[2:6], 
+        #border=colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        col= c("#B888A6", "#E27C93","#B888A6","deepskyblue","#D87886"), 
+        #col = "gray93",
+        border = "black",
+        add=TRUE,
+        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
+
 ```
 
 
@@ -232,4 +256,3 @@ for (i in colnames(tabela_srednie_dekadowe[,2:18]))
           labs(y="Temperatura", title=i)+
           theme_scatter)
 }
-```
