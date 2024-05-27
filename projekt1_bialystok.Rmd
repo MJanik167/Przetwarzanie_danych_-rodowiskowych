@@ -1,5 +1,10 @@
 ```{r}
 library(ggplot2)
+library(dplyr)
+library(openxlsx)
+```
+
+```{r}
 colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
 
 ```
@@ -175,3 +180,47 @@ colnames(tabela_pory_roku)=c(" ", "wiosna","lato","jesien","zima","wegetacja")
 write.xlsx(tabela_pory_roku, 'Tabela_pory_roku.xlsx') #TU DAJE OD RAZU DO WORKING DIRECTORY
 ```
 
+```{r}
+#ŚEDNIE DEKADOWE
+
+#tabela z miesiacami, porami roku, wegetacja
+zbiorcza <- merge(T_BIAŁYSTOK, pory_roku, by="Rok" )
+#osobne tabele dla dekad
+for (i in c(0:6))
+{
+  nr_dekady<-50+i*10
+  assign(paste0("dekada_",1950+i*10), subset(zbiorcza, Rok>1950+i*10 & Rok <=1960+i*10))
+  
+}
+```
+
+```{r}
+#tabela ze średnimi dekadowymi dla miesiecy, por roku i wegetacji (tabela_srednie_dekadowe)
+dekady <- list(dekada_1950,dekada_1960, dekada_1970, dekada_1980, dekada_1990, dekada_2000, dekada_2010)
+names(dekady)<-c("dekada 1950","dekada 1960", "dekada 1970", "dekada 1980", "dekada 1990", "dekada 2000", "dekada 2010")
+
+tabela_srednie_dekadowe <- data.frame()
+for (i in 1:length(dekady))
+{
+  liczona_dekada <- dekady[[i]]
+  liczona_dekada_nazwa <- names(dekady)[i]
+  temp_tabela_srednie <- data.frame(nrows=1)
+  for (j in colnames(liczona_dekada[,2:18]))
+  {
+    srednia_dekady <- mean(liczona_dekada[,j])
+    temp_tabela_srednie <- cbind(temp_tabela_srednie, srednia_dekady)
+  }
+  tabela_srednie_dekadowe <- rbind(tabela_srednie_dekadowe, temp_tabela_srednie)  
+}
+colnames(tabela_srednie_dekadowe) <- c("Dekada", colnames(zbiorcza[,2:18]))
+tabela_srednie_dekadowe[,1]<-names(dekady)
+```
+
+```{r}
+#wykresy średnich dekadowych
+for (i in colnames(tabela_srednie_dekadowe[,2:18]))
+{
+  print(ggplot(tabela_srednie_dekadowe, aes(Dekada, tabela_srednie_dekadowe[,i]))+geom_point()+labs(y="Temperatura", title=i))
+}
+
+```
