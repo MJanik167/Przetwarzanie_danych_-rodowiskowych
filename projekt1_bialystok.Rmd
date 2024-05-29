@@ -82,7 +82,9 @@ for (i in colnames(T_BIAŁYSTOK)[2:13])
           #tytuły osi
           labs(title=i,x="Rok", y="Temperatura")+ 
           #dodanie przygotowanego wcześniej theme'a
-          liniowy_theme)
+          liniowy_theme)+
+      #dodanie geom_smooth
+      geom_smooth(method = "lm")
 }
 ```
 
@@ -172,7 +174,7 @@ pory_roku <- data.frame(wiosna)
 for (pora in dane[2:5]) {
   pory_roku <- cbind(pory_roku, pora[,2])
 }
-colnames(pory_roku) <- c("Rok","wiosna","lato","jesien","zima","wegetacja")
+colnames(pory_roku) <- c("Rok","wiosna","lato","jesień","zima","wegetacja")
 
 #boxplot
 boxplot(pory_roku[2:6])
@@ -183,13 +185,14 @@ boxplot(pory_roku[2:6],
         #col = "gray93",
         border = "black",
         add=TRUE,
-        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]")
+        main="Rozkład temperatur", xlab="miesiące", ylab="temperatura [st.C]")
 
 ```
 
 
 ```{r}
-for (i in colnames(pory_roku[,2:5]))
+tabela_pory_roku <- data.frame(rownames=c("Średnia", "Mediana", "Odchylenie Standardowe", "Minimum", "Maximum", "Rozstęp miedzykwartylowy"))
+for (i in colnames(pory_roku[,2:6]))
 {
   srednia <- mean(pory_roku[,i])
   mediana <- median(pory_roku[,i])
@@ -198,7 +201,7 @@ for (i in colnames(pory_roku[,2:5]))
   max <- max(pory_roku[,i])
   iqr <- IQR(pory_roku[,i])
   temp_tabela <- data.frame(rownames=c(srednia, mediana,sd, min, max, iqr))
-  tabela_pory_roku<-cbind.data.frame(tabela_miesiace, temp_tabela)
+  tabela_pory_roku<-cbind.data.frame(tabela_pory_roku, temp_tabela)
 }
 colnames(tabela_pory_roku)=c(" ", "wiosna","lato","jesien","zima","wegetacja")
 write.xlsx(tabela_pory_roku, 'Tabela_pory_roku.xlsx') #TU DAJE OD RAZU DO WORKING DIRECTORY
@@ -254,5 +257,6 @@ for (i in colnames(tabela_srednie_dekadowe[,2:18]))
           geom_point(aes(fill = tabela_srednie_dekadowe[,i]), size=6, pch=21) +
           scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+
           labs(y="Temperatura", title=i)+
-          theme_scatter)
+          theme_scatter) + geom_smooth(method="lm")
 }
+```
