@@ -12,6 +12,7 @@ colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VII
 
 ```{r}
 histogram_theme <- theme(
+  text = element_text(size=15),
   axis.title = element_text(family ="sans", size = 20 ),
   plot.background = element_rect(fill = "#FAF8FF"),
   panel.background = element_rect(fill="white"),
@@ -52,6 +53,7 @@ for (i in colnames(T_BIAŁYSTOK)[2:13])
 ```{r}
 
 liniowy_theme <- theme(
+  text = element_text(size=15),
   plot.background = element_rect(fill = "#FAF8FF"),
   panel.background = element_rect(fill="white"),
   panel.grid = element_line(linewidth = 0.9, color="gray93"),
@@ -224,7 +226,7 @@ for (i in c(0:6))
 ```{r}
 #tabela ze średnimi dekadowymi dla miesiecy, por roku i wegetacji (tabela_srednie_dekadowe)
 dekady <- list(dekada_1950,dekada_1960, dekada_1970, dekada_1980, dekada_1990, dekada_2000, dekada_2010)
-names(dekady)<-c("dekada 1950","dekada 1960", "dekada 1970", "dekada 1980", "dekada 1990", "dekada 2000", "dekada 2010")
+names(dekady)<-c("1950","1960", "1970", "1980", "1990", "2000", "2010")
 
 tabela_srednie_dekadowe <- data.frame()
 for (i in 1:length(dekady))
@@ -246,17 +248,22 @@ tabela_srednie_dekadowe[,1]<-names(dekady)
 ```{r}
 #wykresy średnich dekadowych
 theme_scatter<-liniowy_theme + theme(
+  text = element_text(size=12),
   panel.grid.major.y = element_line(linetype = "solid"),
   panel.grid.major.x = element_line(linetype = "solid"),
-  panel.grid.minor.y = element_blank()
+  panel.grid.minor.y = element_blank(),
 )
+
 
 for (i in colnames(tabela_srednie_dekadowe[,2:18]))
 {
-  print(ggplot(tabela_srednie_dekadowe, aes(Dekada, tabela_srednie_dekadowe[,i]))+
+  print(ggplot(tabela_srednie_dekadowe, aes(as.numeric(Dekada), tabela_srednie_dekadowe[,i]))+
+          geom_smooth(method = "lm", aes(color = ..y..), fill="gray68", alpha = 0.2)+
           geom_point(aes(fill = tabela_srednie_dekadowe[,i]), size=6, pch=21) +
           scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+
-          labs(y="Temperatura", title=i)+
-          theme_scatter) + geom_smooth(method="lm")
+          scale_color_gradient2(low="deepskyblue" ,mid ="#C5C5C5" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+
+          labs(y="Temperatura",x="Dekada" ,title=i)+
+          scale_x_continuous(labels = ~ paste0('dekada ',.x), breaks = round(seq(min(tabela_srednie_dekadowe$Dekada),max(tabela_srednie_dekadowe$Dekada),by=10),1))+
+          theme_scatter)
 }
 ```
