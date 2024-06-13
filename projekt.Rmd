@@ -1,0 +1,192 @@
+
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(openxlsx)
+```
+```{r}
+colnames(T_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+colnames(T_SUWAŁKI) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+colnames(P_BIAŁYSTOK) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+colnames(P_SUWAŁKI) <- c("Rok", "I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+```
+
+```{r}
+boxplot(T_BIAŁYSTOK[,2:13])
+grid(nx=0,ny=6,lty = "solid",col = "gray93")
+boxplot(T_BIAŁYSTOK[,2:13], 
+        #border=colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        col= colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        #col = "gray93",
+        border = "black",
+        add=TRUE,
+        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]"
+        )
+
+boxplot(P_BIAŁYSTOK[,2:13])
+grid(nx=0,ny=6,lty = "solid",col = "gray93")
+boxplot(P_BIAŁYSTOK[,2:13], 
+        #border=colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        col= colorRampPalette(c("deepskyblue", "#E27C93", "#E27C93","deepskyblue"))( 12), 
+        #col = "gray93",
+        border = "black",
+        add=TRUE,
+        main="Rozkład temperatur", xlab="miesiące", ylab="tmp[st.C]"
+        )
+```
+```{r}
+for (i in colnames(T_BIAŁYSTOK)[c(2,5,8,11)])
+{
+  #dev.new()
+  print(ggplot(T_BIAŁYSTOK, aes(Rok,T_BIAŁYSTOK[,i],color = T_BIAŁYSTOK[,i]))+ 
+          #dodanie wykresu liniowego 
+          geom_line(linewidth=0.9) + 
+          #dodajemy punkty do wykresu liniowego, aby lepiej zobrazować poszczególne dane (oraz ze względów estetycznych)
+          geom_point(aes(fill = T_BIAŁYSTOK[,i]), size=5, pch=21) +
+          #dodanie gradientu
+          scale_fill_gradient2(low="deepskyblue",mid = ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13]))) +
+          scale_color_gradient2(low="deepskyblue",mid ="#D5D5D5",high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(T_BIAŁYSTOK[2:13])))+ 
+          #dodanie notacji dla temperatury
+          scale_y_continuous(labels = ~ paste0(.x, " °C"))+
+          #tytuły osi
+          labs(title=i,x="Rok", y="Temperatura")+ 
+          #dodanie przygotowanego wcześniej theme'a
+          #liniowy_theme)+
+      #dodanie geom_smooth
+      geom_smooth(method = "lm"))
+}
+```
+```{r}
+for (i in colnames(P_BIAŁYSTOK)[c(2,5,8,11)])
+{
+  #dev.new()
+  print(ggplot(P_BIAŁYSTOK, aes(Rok,P_BIAŁYSTOK[,i],color = P_BIAŁYSTOK[,i]))+ 
+          #dodanie wykresu liniowego 
+          geom_line(linewidth=0.9) + 
+          #dodajemy punkty do wykresu liniowego, aby lepiej zobrazować poszczególne dane (oraz ze względów estetycznych)
+          geom_point(aes(fill = P_BIAŁYSTOK[,i]), size=5, pch=21) +
+          #dodanie gradientu
+          scale_fill_gradient2(low="#D5D5D5",mid = ,high="deepskyblue",midpoint = 7,limits=c(min(P_BIAŁYSTOK[2:13]),max(P_BIAŁYSTOK[2:13]))) +
+          scale_color_gradient2(low="#D5D5D5",mid ="#D5D5D5",high="deepskyblue",midpoint = 7,limits=c(min(P_BIAŁYSTOK[2:13]),max(P_BIAŁYSTOK[2:13])))+ 
+          #dodanie notacji dla temperatury
+          scale_y_continuous(labels = ~ paste0(.x, " mm"))+
+          #tytuły osi
+          labs(title=i,x="Rok", y="Opady")+ 
+          #dodanie przygotowanego wcześniej theme'a
+          #liniowy_theme)+
+      #dodanie geom_smooth
+      geom_smooth(method = "lm"))
+}
+```
+```{r}
+BIAŁYSTOK <- merge(T_BIAŁYSTOK, P_BIAŁYSTOK, by="Rok")
+
+for (i in colnames(BIAŁYSTOK[,2:13]))
+{
+  print(ggplot(BIAŁYSTOK, aes(BIAŁYSTOK[,i], BIAŁYSTOK[,(paste0(substr(i,1,nchar(i)-1),"y"))]))+
+          geom_point(size=6, pch=21) +
+          #scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(BIAŁYSTOK[2:13])))+
+          labs(y="Opady", title=i)+
+          #theme_scatter
+         geom_smooth(method="lm"))
+}
+
+```
+
+
+```{r}
+#pearson <- c(cor())
+
+pearson_tabela <- data.frame(matrix(nrow = 1))
+spearman_tabela <- data.frame(matrix(nrow = 1))
+test_tabela <- data.frame(matrix(nrow = 1))
+for (i in colnames(BIAŁYSTOK[,2:13])) 
+{
+  print(cor(BIAŁYSTOK[,i], BIAŁYSTOK[,(paste0(substr(i,1,nchar(i)-1),"y"))]))
+  pearson <- cor(BIAŁYSTOK[,i], BIAŁYSTOK[,(paste0(substr(i,1,nchar(i)-1),"y"))])
+  spearman <- cor(BIAŁYSTOK[,i], BIAŁYSTOK[,(paste0(substr(i,1,nchar(i)-1),"y"))], method="spearman")
+  test<-cor.test(BIAŁYSTOK[,i], BIAŁYSTOK[,(paste0(substr(i,1,nchar(i)-1),"y"))])
+  pearson_tabela <- cbind(pearson_tabela, pearson)
+  test_tabela <- cbind(test_tabela, test$p.value)
+  spearman_tabela <- cbind(spearman_tabela, spearman)
+  }
+names(pearson_tabela) <- names(test_tabela)
+names(spearman_tabela) <- names(test_tabela)
+pearson_tabela <- rbind(pearson_tabela, test_tabela)
+pearson_tabela <- rbind(pearson_tabela, spearman_tabela)
+pearson_tabela[,1] <- NULL 
+colnames(pearson_tabela)<- c("I", "II", "III", "IV","V", "VI", "VII", "VIII", "IX", "X", "XI", "XII" )
+rownames(pearson_tabela)<-c("Pearson", "p - value", "Spearman")
+
+
+```
+```{r}
+TEMPERATURY <- merge(T_BIAŁYSTOK, T_SUWAŁKI, by="Rok")
+
+tempertury_korelacje <-  data.frame(matrix(nrow = 1))
+spearman_tabela <- data.frame(matrix(nrow = 1))
+test_tabela <- data.frame(matrix(nrow = 1))
+for (i in colnames(TEMPERATURY[,seq(2,13,by=2)]))
+{
+  pearson <- cor(TEMPERATURY[,i], TEMPERATURY[,(paste0(substr(i,1,nchar(i)-1),"y"))])
+  spearman <- cor(TEMPERATURY[,i], TEMPERATURY[,(paste0(substr(i,1,nchar(i)-1),"y"))], method="spearman")
+  test<-cor.test(TEMPERATURY[,i], TEMPERATURY[,(paste0(substr(i,1,nchar(i)-1),"y"))])
+  tempertury_korelacje <- cbind(tempertury_korelacje, pearson)
+  test_tabela <- cbind(test_tabela, test$p.value)
+  spearman_tabela <- cbind(spearman_tabela, spearman)
+  # tempertury_korelacje <- cbind(pearson_tabela, pearson)
+  # test_tabela <- cbind(test_tabela, test$p.value)
+  # spearman_tabela <- cbind(spearman_tabela, spearman)
+  
+  
+  print(ggplot(TEMPERATURY, aes(TEMPERATURY[,i], TEMPERATURY[,(paste0(substr(i,1,nchar(i)-1),"y"))]))+
+          geom_point(size=6, pch=21) +
+          #scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(BIAŁYSTOK[2:13])))+
+          labs(y="Opady", title=i)+
+          #theme_scatter
+         geom_smooth(method="lm"))
+}
+
+names(tempertury_korelacje) <- names(test_tabela)
+names(spearman_tabela) <- names(test_tabela)
+tempertury_korelacje <- rbind(tempertury_korelacje, test_tabela)
+tempertury_korelacje <- rbind(tempertury_korelacje, spearman_tabela)
+tempertury_korelacje[,1] <- NULL
+```
+
+```{r}
+
+OPADY <- merge(P_BIAŁYSTOK, P_SUWAŁKI, by="Rok")
+
+opady_korelacje <-  data.frame(matrix(nrow = 1))
+spearman_tabela <- data.frame(matrix(nrow = 1))
+test_tabela <- data.frame(matrix(nrow = 1))
+for (i in colnames(OPADY[,seq(2,13,by=2)]))
+{
+  pearson <- cor(OPADY[,i], OPADY[,(paste0(substr(i,1,nchar(i)-1),"y"))])
+  spearman <- cor(OPADY[,i], OPADY[,(paste0(substr(i,1,nchar(i)-1),"y"))], method="spearman")
+  test<-cor.test(OPADY[,i], OPADY[,(paste0(substr(i,1,nchar(i)-1),"y"))])
+  opady_korelacje <- cbind(opady_korelacje, pearson)
+  test_tabela <- cbind(test_tabela, test$p.value)
+  spearman_tabela <- cbind(spearman_tabela, spearman)
+  # tempertury_korelacje <- cbind(pearson_tabela, pearson)
+  # test_tabela <- cbind(test_tabela, test$p.value)
+  # spearman_tabela <- cbind(spearman_tabela, spearman)
+  
+  
+  print(ggplot(OPADY, aes(OPADY[,i], OPADY[,(paste0(substr(i,1,nchar(i)-1),"y"))]))+
+          geom_point(size=6, pch=21) +
+          #scale_fill_gradient2(low="deepskyblue" ,high="#E27C93",midpoint = 7,limits=c(min(T_BIAŁYSTOK[2:13]),max(BIAŁYSTOK[2:13])))+
+          labs(y="Opady", title=i)+
+          #theme_scatter
+         geom_smooth(method="lm"))
+}
+
+names(opady_korelacje) <- names(test_tabela)
+names(spearman_tabela) <- names(test_tabela)
+opady_korelacje <- rbind(opady_korelacje, test_tabela)
+opady_korelacje <- rbind(opady_korelacje, spearman_tabela)
+opady_korelacje[,1] <- NULL
+```
+
